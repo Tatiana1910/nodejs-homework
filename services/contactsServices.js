@@ -1,8 +1,18 @@
 const { HttpError } = require("../utils/HttpError");
 const { Contact } = require("../models/contact");
 
-const listContacts = async () => {
-  const contacts = await Contact.find({}, "-createdAt -updatedAt");
+const listContacts = async (page, limit, favorite) => {
+  const skip = (page - 1) * limit;
+  const filter = {};
+  if (favorite === "true") {
+    filter.favorite = true;
+  } else if (favorite === "false") {
+    filter.favorite = false;
+  }
+
+  const contacts = await Contact.find(filter, "-createdAt -updatedAt")
+    .skip(skip)
+    .limit(limit);
   return contacts;
 };
 

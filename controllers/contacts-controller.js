@@ -9,7 +9,8 @@ const {
 const ctrlWrapper = require("../decorators/ctrlWrapper");
 
 const getAllContacts = async (req, res, next) => {
-  const contacts = await listContacts();
+  const { page = 1, limit = 20, favorite } = req.query;
+  const contacts = await listContacts(page, limit, favorite);
   res.json(contacts);
 };
 
