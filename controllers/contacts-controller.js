@@ -9,8 +9,7 @@ const {
 const ctrlWrapper = require("../decorators/ctrlWrapper");
 
 const getAllContacts = async (req, res, next) => {
-  const { page = 1, limit = 20, favorite } = req.query;
-  const contacts = await listContacts(page, limit, favorite);
+  const contacts = await listContacts(req.user, req.query);
   res.json(contacts);
 };
 
@@ -21,7 +20,7 @@ const getContact = async (req, res, next) => {
 };
 
 const addNewContact = async (req, res, next) => {
-  const newContact = await addContact(req.body);
+  const newContact = await addContact(req.body, req.user);
   res.status(201).json(newContact);
 };
 

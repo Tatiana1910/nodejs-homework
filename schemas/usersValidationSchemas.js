@@ -8,6 +8,9 @@ const createUserValidationSchema = Joi.object({
     "sting.pattern.base":
       "Password should contain minimum eight characters, at least one letter and one number",
   }),
+  subscription: Joi.string().valid("starter", "pro", "business").messages({
+    "any.invalid": "{{#label}} contains invalide option",
+  }),
 });
 
 const loginValidationSchema = Joi.object().keys({
@@ -15,7 +18,12 @@ const loginValidationSchema = Joi.object().keys({
   password: createUserValidationSchema.extract("password"),
 });
 
+const UserUpdateSubscriptionSchema = Joi.object().keys({
+  subscription: createUserValidationSchema.extract("subscription"),
+});
+
 module.exports = {
   createUserValidationSchema,
   loginValidationSchema,
+  UserUpdateSubscriptionSchema,
 };

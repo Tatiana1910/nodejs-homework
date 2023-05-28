@@ -1,6 +1,5 @@
 const { Schema, model } = require("mongoose");
 const { handleMongooseError } = require("../utils/HandleMongooseError");
-const bcrypt = require("bcryptjs");
 
 const usersSchema = new Schema(
   {
@@ -18,24 +17,11 @@ const usersSchema = new Schema(
       enum: ["starter", "pro", "business"],
       default: "starter",
     },
-    token: {
-      type: String,
-      default: null,
-    },
-    owner: {
-      type: Schema.Types.ObjectId,
-      ref: "user",
-    },
+    token: String,
   },
+
   { versionKey: false, timestamps: true }
 );
-
-usersSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
-    return next();
-  }
-  this.password = await bcrypt.hash(this.password, 12);
-});
 
 usersSchema.post("save", handleMongooseError);
 

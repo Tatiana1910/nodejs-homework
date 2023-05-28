@@ -1,18 +1,20 @@
 const { HttpError } = require("../utils/HttpError");
 const { Contact } = require("../models/contact");
 
-const listContacts = async (page, limit, favorite) => {
+const listContacts = async (user, query) => {
+  const { _id: owner } = user;
+  const defaultFavorite = { $in: [true, false] };
+  const { page = 1, limit = 10, favorite = defaultFavorite } = query;
   const skip = (page - 1) * limit;
-  const filter = {};
-  if (favorite === "true") {
-    filter.favorite = true;
-  } else if (favorite === "false") {
-    filter.favorite = false;
-  }
 
-  const contacts = await Contact.find(filter, "-createdAt -updatedAt")
-    .skip(skip)
-    .limit(limit);
+  const contacts = await Contact.find(
+    { owner, favorite },
+    "-createdAt -updatedAt",
+    {
+      skip,
+      limit,
+    }
+  ).populate("owner", "email subscription");
   return contacts;
 };
 
@@ -25,8 +27,9 @@ const getContactById = async (contactId) => {
   return searchedContact || null;
 };
 
-const addContact = async (body) => {
-  const newContact = await Contact.create(body);
+const addContact = async (body, user) => {
+  const { _id: owner } = user;
+  const newContact = await Contact.create({ ...body, owner });
   return newContact;
 };
 
