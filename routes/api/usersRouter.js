@@ -19,8 +19,9 @@ const router = express.Router();
 router.post("/register", validateBody(createUserValidationSchema), register);
 
 router.post("/login", validateBody(loginValidationSchema), login);
+
+router.get("/current", authenticate, currentUser);
 router.post("/logout", authenticate, logout);
-router.post("/current", authenticate, currentUser);
 router.patch(
   "/current/subscription",
   authenticate,
