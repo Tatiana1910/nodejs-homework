@@ -3,6 +3,7 @@ const { User } = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { SECRET_KEY } = process.env;
+const gravatar = require("gravatar");
 
 const registerService = async (body) => {
   const { email, password } = body;
@@ -12,8 +13,13 @@ const registerService = async (body) => {
   }
 
   const hashPassword = await bcrypt.hash(password, 12);
+  const avatarURL = gravatar.url(email);
 
-  const newUser = await User.create({ ...body, password: hashPassword });
+  const newUser = await User.create({
+    ...body,
+    password: hashPassword,
+    avatarURL,
+  });
   return {
     user: {
       email: newUser.email,
