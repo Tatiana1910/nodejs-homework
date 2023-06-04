@@ -6,6 +6,7 @@ const {
   logout,
   currentUser,
   userUpdateSubscriprion,
+  updateAvatar,
 } = require("../../controllers/usersControllers");
 const validateBody = require("../../decorators/validateBody");
 const {
@@ -14,7 +15,7 @@ const {
   UserUpdateSubscriptionSchema,
 } = require("../../schemas/usersValidationSchemas");
 const authenticate = require("../../decorators/authenticate");
-// const upload = require("../../decorators/upload");
+const upload = require("../../decorators/upload");
 
 const router = express.Router();
 router.post("/register", validateBody(createUserValidationSchema), register);
@@ -29,6 +30,7 @@ router.patch(
   validateBody(UserUpdateSubscriptionSchema),
   userUpdateSubscriprion
 );
+router.patch("/avatars", authenticate, upload.single("avatar"), updateAvatar);
 
 module.exports = {
   usersRouter: router,
