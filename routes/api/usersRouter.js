@@ -6,7 +6,7 @@ const {
   logout,
   currentUser,
   userUpdateSubscriprion,
-  updateAvatar,
+  userUpdateAvatar,
 } = require("../../controllers/usersControllers");
 const validateBody = require("../../decorators/validateBody");
 const {
@@ -30,7 +30,12 @@ router.patch(
   validateBody(UserUpdateSubscriptionSchema),
   userUpdateSubscriprion
 );
-router.patch("/avatars", authenticate, upload.single("avatar"), updateAvatar);
+router.patch(
+  "/avatars",
+  authenticate,
+  upload.single("avatar"),
+  userUpdateAvatar
+);
 
 module.exports = {
   usersRouter: router,
