@@ -3,6 +3,7 @@ const {
   loginService,
   logoutService,
   changeUserSubscriptionService,
+  updateAvatarUserService,
 } = require("../services/usersServices");
 const ctrlWrapper = require("../decorators/ctrlWrapper");
 
@@ -34,10 +35,16 @@ const userUpdateSubscriprion = ctrlWrapper(async (req, res, next) => {
   res.status(200).json(changedUserSubscription);
 });
 
+const userUpdateAvatar = ctrlWrapper(async (req, res, next) => {
+  const changedAvatarUser = await updateAvatarUserService(req.user, req.file);
+  res.status(200).json(changedAvatarUser);
+});
+
 module.exports = {
   register,
   login,
   logout,
   currentUser,
   userUpdateSubscriprion,
+  userUpdateAvatar,
 };
