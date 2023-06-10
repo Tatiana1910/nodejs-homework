@@ -2,14 +2,16 @@ const { HttpError } = require("../utils/HttpError");
 const { User } = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { SECRET_KEY } = process.env;
+const { SECRET_KEY, PROJECT_URL } = process.env;
 const gravatar = require("gravatar");
 const path = require("path");
 const fs = require("fs/promises");
-
+const sendEmail = require("../decorators/sendEmail");
 const Jimp = require("jimp");
 
 const avatarsDir = path.join(__dirname, "../", "public", "avatars");
+
+const crypto = require("crypto");
 
 const registerService = async (body) => {
   const { email, password } = body;
@@ -20,18 +22,59 @@ const registerService = async (body) => {
 
   const hashPassword = await bcrypt.hash(password, 12);
   const avatarURL = gravatar.url(email);
+  const verificationToken = crypto.randomUUID();
 
   const newUser = await User.create({
     ...body,
     password: hashPassword,
     avatarURL,
+    verificationToken,
   });
+
+  const verifyEmail = {
+    to: newUser.email,
+    subject: "Verify email",
+    html: `<a target="_blank" href="${PROJECT_URL}/api/users/verify/${verificationToken}">Click to verify email</a>`,
+  };
+  await sendEmail(verifyEmail);
+
   return {
     user: {
       email: newUser.email,
       subscription: newUser.subscription,
     },
   };
+};
+
+const verifyService = async (token) => {
+  const currentUser = await User.findOne({ verificationToken: token });
+
+  if (!currentUser) {
+    throw new HttpError(404, "User is not found");
+  }
+  await User.findByIdAndUpdate(currentUser.id, {
+    verify: true,
+    verificationToken: "",
+  });
+};
+
+const resendVerifyEmailService = async (body) => {
+  const { email } = body;
+  const currentUser = await User.findOne({ email });
+  if (!currentUser) {
+    throw new HttpError(404, "User is  not found");
+  }
+  if (currentUser.verify) {
+    throw HttpError(400, "Verification has already been passed");
+  }
+
+  const verifyEmail = {
+    to: currentUser.email,
+    subject: "Verify email",
+    html: `<a target="_blank" href="${PROJECT_URL}/api/users/verify/${currentUser.verificationToken}">Click to verify email</a>`,
+  };
+
+  await sendEmail(verifyEmail);
 };
 
 const loginService = async (body) => {
@@ -101,6 +144,8 @@ const updateAvatarUserService = async (user, file) => {
 };
 module.exports = {
   registerService,
+  verifyService,
+  resendVerifyEmailService,
   loginService,
   logoutService,
   changeUserSubscriptionService,
