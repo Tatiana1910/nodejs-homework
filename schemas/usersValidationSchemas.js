@@ -18,6 +18,10 @@ const loginValidationSchema = Joi.object().keys({
   password: createUserValidationSchema.extract("password"),
 });
 
+const userEmailSchema = Joi.object({
+  email: createUserValidationSchema.extract("email"),
+});
+
 const UserUpdateSubscriptionSchema = Joi.object().keys({
   subscription: createUserValidationSchema.extract("subscription"),
 });
@@ -26,4 +30,5 @@ module.exports = {
   createUserValidationSchema,
   loginValidationSchema,
   UserUpdateSubscriptionSchema,
+  userEmailSchema,
 };
